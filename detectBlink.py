@@ -1,15 +1,16 @@
 #!/usr/local/bin/python
 
-import cv2
+import cv2 as cv
 import numpy as np
 import dlib
 from math import hypot
 
 import config
+import out
 
-class blinkDetector(object):
+class BlinkDetector(object):
     def __init__(self):
-        self.capture = cv2.VideoCapture(config.VIDEO_SOURCE)
+        self.capture = cv.VideoCapture(config.VIDEO_SOURCE)
         self.faceDetector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
@@ -17,7 +18,7 @@ class blinkDetector(object):
         return int((position_1.x + position_2.x)/2), int((position_1.y + position_2.y)/2)
     
     def grayScale(self, frame):
-        convertedGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        convertedGray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         return convertedGray
 
     def detectFacePosition(self, videoOut):
@@ -37,7 +38,13 @@ class blinkDetector(object):
                     if videoOut == True:
                         self.faceVideoOutput(frame, topLeft, bottomRight)
     
-    def detectRightEyeBlink(self, videoOut):
+    def calculateEyeBlinkRatio(self, positionLeft, positionRight, positionTopCenter, PositionBottomCenter):
+        verticalLength = hypot((positionTopCenter[0] - PositionBottomCenter[0]), (positionTopCenter[1] - PositionBottomCenter[1]))
+        horizentalLength = hypot((positionLeft[0] - positionRight[0]), (positionLeft[1] - positionRight[1]))
+
+        return (horizentalLength / verticalLength)
+    
+    def detectRightEyeBlink(self, videoOut, comOut=0):
         while self.capture.isOpened():
             sucess, frame = self.capture.read()
 
@@ -59,18 +66,21 @@ class blinkDetector(object):
 
                     blinkValue = self.calculateEyeBlinkRatio(eyeLeft, eyeRight, eyeTopCenter, eyeBottomCenter)
 
-                    print('top left distance from buttom left is {}'.format(eyeBottomLeft[1] - eyeTopLeft[1]))
-                    print('top right distance from buttom right is {}'.format(eyeBottomRight[1] - eyeTopRight[1]))
-                    print('')
-                    print('top center position is {}'.format(eyeTopCenter))
-                    print('bottom center position is {}'.format(eyeBottomCenter))
-                    print('')
-                    print('horizontal line DEVIDED by vertical line is {}'.format(blinkValue))
+                    if comOut != False and comOut in range(1, 5):
+                        out.OutputToSerial.manageOut(comOut, blinkValue)
+                    else:
+                        print('top left distance from buttom left is {}'.format(eyeBottomLeft[1] - eyeTopLeft[1]))
+                        print('top right distance from buttom right is {}'.format(eyeBottomRight[1] - eyeTopRight[1]))
+                        print('')
+                        print('top center position is {}'.format(eyeTopCenter))
+                        print('bottom center position is {}'.format(eyeBottomCenter))
+                        print('')
+                        print('horizontal line DEVIDED by vertical line is {}'.format(blinkValue))
                     
                     if videoOut == True:
                         self.blinkVideoOutput(frame, eyeLeft, eyeRight, eyeTopRight, eyeTopLeft, eyeBottomRight, eyeBottomLeft, eyeTopCenter, eyeBottomCenter, blinkValue)
     
-    def detectLeftEyeBlink(self, videoOut):
+    def detectLeftEyeBlink(self, videoOut, comOut=0):
         while self.capture.isOpened():
             sucess, frame = self.capture.read()
 
@@ -92,24 +102,21 @@ class blinkDetector(object):
 
                     blinkValue = self.calculateEyeBlinkRatio(eyeLeft, eyeRight, eyeTopCenter, eyeBottomCenter)
 
-                    print('top left distance from buttom left is {}'.format(eyeBottomLeft[1] - eyeTopLeft[1]))
-                    print('top right distance from buttom right is {}'.format(eyeBottomRight[1] - eyeTopRight[1]))
-                    print('')
-                    print('top center position is {}'.format(eyeTopCenter))
-                    print('bottom center position is {}'.format(eyeBottomCenter))
-                    print('')
-                    print('horizontal line DEVIDED by vertical line is {}'.format(blinkValue))
+                    if comOut != False and comOut in range(1, 5):
+                        out.OutputToSerial.manageOut(comOut, blinkValue)
+                    else:
+                        print('top left distance from buttom left is {}'.format(eyeBottomLeft[1] - eyeTopLeft[1]))
+                        print('top right distance from buttom right is {}'.format(eyeBottomRight[1] - eyeTopRight[1]))
+                        print('')
+                        print('top center position is {}'.format(eyeTopCenter))
+                        print('bottom center position is {}'.format(eyeBottomCenter))
+                        print('')
+                        print('horizontal line DEVIDED by vertical line is {}'.format(blinkValue))
                     
                     if videoOut == True:
                         self.blinkVideoOutput(frame, eyeLeft, eyeRight, eyeTopRight, eyeTopLeft, eyeBottomRight, eyeBottomLeft, eyeTopCenter, eyeBottomCenter, blinkValue)
-
-    def calculateEyeBlinkRatio(self, positionLeft, positionRight, positionTopCenter, PositionBottomCenter):
-        verticalLength = hypot((positionTopCenter[0] - PositionBottomCenter[0]), (positionTopCenter[1] - PositionBottomCenter[1]))
-        horizentalLength = hypot((positionLeft[0] - positionRight[0]), (positionLeft[1] - positionRight[1]))
-
-        return (horizentalLength / verticalLength)
     
-    def calculateTwoEyeBlinkRatio(self, rightPositionsList, leftPositionsList):
+    def detectTwoEyeBlink(self, rightPositionsList=[36, 37, 38, 39, 40, 41], leftPositionsList=[42, 43, 44, 45, 46, 47], videoOut=False, comOut=0):
         while self.capture.isOpened():
             sucess, frame = self.capture.read()
 
@@ -135,37 +142,45 @@ class blinkDetector(object):
                         leftEye = self.calculateEyeBlinkRatio(eyeLeft, eyeRight, eyeTopCenter, eyeBottomCenter)
                         rightEye = self.calculateEyeBlinkRatio(eyeLeft, eyeRight, eyeTopCenter, eyeBottomCenter)
 
-                        twoEyeBlinkRatio = (leftEye + rightEye) / 2
+                        twoEyeBlinkRatio = (leftEye + rightEye) / 2                        
 
-                        print(twoEyeBlinkRatio)
+                        if comOut != False and comOut in range(1, 5):
+                            out.OutputToSerial.manageOut(comOut, twoEyeBlinkRatio)
+                        else:
+                            # TODO - add video output
+                            print(twoEyeBlinkRatio)
 
     def faceVideoOutput(self, source, positonTopLeft, positonBottomRight):
-        cv2.rectangle(source, positonTopLeft, positonBottomRight, (0, 255, 0), 1)
-        cv2.imshow('FaceDetection', source)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        cv.rectangle(source, positonTopLeft, positonBottomRight, (0, 255, 0), 1)
+        cv.imshow('FaceDetection', source)
+        if cv.waitKey(1) & 0xFF == ord('q'):
             quit()
 
     def blinkVideoOutput(self, source, positionLeft, positionRight, positonTopRight, positonTopLeft, positonBottomRight, positonBottomLeft, topCenter, bottomCenter, eyeRation):
-        cv2.circle(source, positonTopLeft, 3, (0, 255, 0), 1)
-        cv2.circle(source, positonTopRight, 3, (0, 255, 0), 1)
-        cv2.circle(source, positonBottomLeft, 3, (0, 0, 255), 1)
-        cv2.circle(source, positonBottomRight, 3, (0, 0, 255), 1)
-        cv2.line(source, topCenter, bottomCenter, (0, 255, 0), 1)
-        cv2.line(source, positionLeft, positionRight, (0, 255, 0), 1)
+        cv.circle(source, positonTopLeft, 3, (0, 255, 0), 1)
+        cv.circle(source, positonTopRight, 3, (0, 255, 0), 1)
+        cv.circle(source, positonBottomLeft, 3, (0, 0, 255), 1)
+        cv.circle(source, positonBottomRight, 3, (0, 0, 255), 1)
+        cv.line(source, topCenter, bottomCenter, (0, 255, 0), 1)
+        cv.line(source, positionLeft, positionRight, (0, 255, 0), 1)
         if eyeRation > config.CLOSED_EYE_RATIO:
-            cv2.putText(source, 'Eye is closed', (50, 150), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 0))
-        cv2.imshow('BlinkDetection', source)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv.putText(source, 'Eye is closed', (50, 150), cv.FONT_HERSHEY_PLAIN, 2, (0, 0, 0))
+        cv.imshow('BlinkDetection', source)
+        if cv.waitKey(1) & 0xFF == ord('q'):
             quit()
 
     def closeSession(self):
         self.capture.release()
-        cv2.destroyAllWindows()
+        cv.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    BLINK_DETECTOR = blinkDetector()
+    BLINK_DETECTOR = BlinkDetector()
+    #
+    # To redirect output to a serial port add a selected com ID from 1 - 4
+    # e.g BLINK_DETECTOR.detectFacePosition(True, 1)
+    #
     # BLINK_DETECTOR.detectFacePosition(True)
     # BLINK_DETECTOR.detectLeftEyeBlink(True)
     # BLINK_DETECTOR.detectRightEyeBlink(True)
-    # BLINK_DETECTOR.calculateTwoEyeBlinkRatio([36, 37, 38, 39, 40, 41], [42, 43, 44, 45, 46, 47])
+    # BLINK_DETECTOR.detectTwoEyeBlink([36, 37, 38, 39, 40, 41], [42, 43, 44, 45, 46, 47])

@@ -10,19 +10,19 @@ main.py takes 4 arguments:
 * boolean video output
 * STDOUT redirection to a com port
 
-    * [-] for type blink
-        * [-] chose eithr: facePosition / leftEye / rightEye / twoEyes
-        * [-] set the video output to either: True / False
-        * [-] set redirect to COM to 0 for disable, 1-4 for relative com port
+* [-] for type blink
+    * [-] chose eithr: facePosition / leftEye / rightEye / twoEyes
+    * [-] set the video output to either: True / False
+    * [-] set redirect to COM to 0 for disable, 1-4 for relative com port
 
-            *  [-] e.g pythom main.py blink rightEye False 0
+        *  [-] e.g pythom main.py blink rightEye False 0
 
-    * [-] for type direction
-        * [-] chose eithr: leftEye / rightEye / twoEyes
-        * [-] set the video output to either: True / False
-        * [-] set the redirect to COM port ID if needed, if enabled, make sure to edit the config file
+* [-] for type direction
+    * [-] chose eithr: leftEye / rightEye / twoEyes
+    * [-] set the video output to either: True / False
+    * [-] set the redirect to COM port ID if needed, if enabled, make sure to edit the config file
 
-            *  [-] e.g pythom main.py direction rightEye False 0
+        *  [-] e.g pythom main.py direction rightEye False 0
 
 
 IMPORTANT
@@ -31,3 +31,6 @@ make sure to *pip install -r requirements.txt*
 
 redirecting STDOUT to a serial com port requires you to define the port in the config.py file.
 run *main.py listCom* to get a list of all avilable com ports on your system.
+
+download *shape_predictor_68_face_landmarks.dat* @ 
+https://2.bp.blogspot.com/-MDiMLZ30HAc/WadbmA8MGsI/AAAAAAAADc8/xThyrD0pH08pTM1R9g6xJ-kCBsc-afE7ACLcBGAs/s1600/dlib-landmark-mean.png

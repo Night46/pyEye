@@ -10,19 +10,19 @@ main.py takes 4 arguments:
 * boolean video output
 * STDOUT redirection to a com port
 
-* [-] for type blink
-    * [-] chose eithr: facePosition / leftEye / rightEye / twoEyes
-    * [-] set the video output to either: True / False
-    * [-] set redirect to COM to 0 for disable, 1-4 for relative com port
+    * [-] for type blink
+        * [-] chose eithr: facePosition / leftEye / rightEye / twoEyes
+        * [-] set the video output to either: True / False
+        * [-] set redirect to COM to 0 for disable, 1-4 for relative com port
 
-        *  [-] e.g pythom main.py blink rightEye False 0
+            *  [-] e.g pythom main.py blink rightEye False 0
 
-* [-] for type direction
-    * [-] chose eithr: leftEye / rightEye / twoEyes
-    * [-] set the video output to either: True / False
-    * [-] set the redirect to COM port ID if needed, if enabled, make sure to edit the config file
+    * [-] for type direction
+        * [-] chose eithr: leftEye / rightEye / twoEyes
+        * [-] set the video output to either: True / False
+        * [-] set the redirect to COM port ID if needed, if enabled, make sure to edit the config file
 
-        *  [-] e.g pythom main.py direction rightEye False 0
+            *  [-] e.g pythom main.py direction rightEye False 0
 
 
 IMPORTANT
